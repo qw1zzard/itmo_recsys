@@ -13,7 +13,8 @@ dependencies = [
     "pydantic~=2.10.6",
     "pydantic-settings~=2.8.1",
     "starlette~=0.46.0",
-    "uvicorn~=0.34.0"
+    "uvicorn~=0.34.0",
+    "python-dotenv (>=1.0.1,<2.0.0)"
 ]
 requires-python = ">=3.11"
 

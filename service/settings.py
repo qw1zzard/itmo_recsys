@@ -19,6 +19,4 @@ class ServiceConfig(Config):
 
 
 def get_config() -> ServiceConfig:
-    return ServiceConfig(
-        log_config=LogConfig(),
-    )
+    return ServiceConfig(log_config=LogConfig())

@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 
-from ..log import setup_logging
-from ..settings import ServiceConfig
-from .exception_handlers import add_exception_handlers
-from .middlewares import add_middlewares
-from .views import add_views
+from service.api.exception_handlers import add_exception_handlers
+from service.api.middlewares import add_middlewares
+from service.api.views import add_views
+from service.log import setup_logging
+from service.settings import ServiceConfig
 
 __all__ = ("create_app",)
 
