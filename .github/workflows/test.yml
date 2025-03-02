@@ -42,4 +42,4 @@ jobs:
       - name: Run tests
         run: make test
         env:
-          SECRET_TOKEN: ${{ secrets.API_KEY }}
+          API_KEY: ${{ secrets.API_KEY }}

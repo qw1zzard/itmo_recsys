@@ -9,7 +9,9 @@ from pydantic import BaseModel
 from service.api.exceptions import UserNotFoundError
 from service.log import app_logger
 
-load_dotenv()
+if not os.getenv("API_KEY"):
+    load_dotenv()
+
 API_KEY = os.getenv("API_KEY")
 auth_scheme = HTTPBearer()
 
@@ -46,7 +48,7 @@ async def get_reco(request: Request, model_name: str, user_id: int) -> RecoRespo
 
     k_recs = request.app.state.k_recs
 
-    if model_name == "range_first_10_items":
+    if model_name == "baseline_first_10_items":
         reco = list(range(k_recs))
     else:
         raise HTTPException(status_code=404, detail="Incorrect model name")
