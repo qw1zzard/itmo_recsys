@@ -10,13 +10,14 @@ dependencies = [
     "gunicorn~=23.0.0",
     "httpx~=0.28.1",
     "orjson~=3.10.15",
-    "pydantic~=2.10.6",
+    "pandas (>=2.2.3,<3.0.0)",
     "pydantic-settings~=2.8.1",
+    "pydantic~=2.10.6",
+    "python-dotenv (>=1.0.1,<2.0.0)",
     "starlette~=0.46.0",
-    "uvicorn~=0.34.0",
-    "python-dotenv (>=1.0.1,<2.0.0)"
+    "uvicorn~=0.34.0"
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 
 [tool.poetry]
 packages = [{ include = "service" }]
@@ -33,7 +34,7 @@ requests = "~2.32.3"
 
 [tool.black]
 line-length = 120
-target-version = ["py310", "py311"]
+target-version = ["py311", "py312"]
 
 [build-system]
 requires = ["poetry-core"]
