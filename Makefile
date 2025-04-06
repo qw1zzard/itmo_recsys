@@ -1,5 +1,7 @@
 VENV := .venv
 
+MODELS := models
+NOTEBOOKS := notebooks
 PROJECT := service
 TESTS := tests
 
@@ -27,10 +29,10 @@ clean:
 # Format
 
 isort_fix: .venv
-	poetry run isort $(PROJECT) $(TESTS)
+	poetry run isort $(MODELS) $(NOTEBOOKS) $(PROJECT) $(TESTS)
 
 black_fix:
-	poetry run black $(PROJECT) $(TESTS)
+	poetry run black $(MODELS) $(PROJECT) $(TESTS)
 
 format: isort_fix black_fix
 
@@ -38,19 +40,19 @@ format: isort_fix black_fix
 # Lint
 
 isort: .venv
-	poetry run isort --check $(PROJECT) $(TESTS)
+	poetry run isort --check $(MODELS) $(NOTEBOOKS) $(PROJECT) $(TESTS)
 
 .black:
-	poetry run black --check --diff $(PROJECT) $(TESTS)
+	poetry run black --check --diff $(MODELS) $(NOTEBOOKS) $(PROJECT) $(TESTS)
 
 flake: .venv
-	poetry run flake8 $(PROJECT) $(TESTS)
+	poetry run flake8 $(NOTEBOOKS) $(PROJECT) $(TESTS)
 
 mypy: .venv
-	poetry run mypy $(PROJECT) $(TESTS)
+	poetry run mypy $(MODELS) $(PROJECT) $(TESTS)
 
 pylint: .venv
-	poetry run pylint $(PROJECT) $(TESTS)
+	poetry run pylint $(MODELS) $(NOTEBOOKS) $(PROJECT) $(TESTS)
 
 lint: isort flake mypy pylint
 
