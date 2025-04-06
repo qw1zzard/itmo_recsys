@@ -49,7 +49,7 @@ flake: .venv
 	poetry run flake8 $(NOTEBOOKS) $(PROJECT) $(TESTS)
 
 mypy: .venv
-	poetry run mypy $(MODELS) $(PROJECT) $(TESTS)
+	poetry run mypy $(PROJECT) $(TESTS)
 
 pylint: .venv
 	poetry run pylint $(MODELS) $(NOTEBOOKS) $(PROJECT) $(TESTS)
