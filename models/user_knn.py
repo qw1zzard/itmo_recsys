@@ -217,11 +217,8 @@ if os.path.exists(KNN_RECOMMENDATIONS):
     knn_recomendations.set_index("user_id", inplace=True)
 
 
-def get_knn_recomendations(
-    user_id: int,
-    knn_recomendations: pd.DataFrame = knn_recomendations,
-) -> list[int]:
-    if user_id in knn_recomendations.index:
+def get_knn_recomendations(user_id: int) -> list[int]:
+    if knn_recomendations and user_id in knn_recomendations.index:
         return knn_recomendations.loc[user_id, "item_id"]
 
     return POPULAR_RECOMMENDATIONS

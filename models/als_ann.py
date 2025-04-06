@@ -1,8 +1,9 @@
+from rectools.models import ImplicitALSWrapperModel
 from rectools.tools import UserToItemAnnRecommender
 
 from models.utils import ALS_MODEL, POPULAR_RECOMMENDATIONS, load_pickle
 
-model = load_pickle(ALS_MODEL)
+model: ImplicitALSWrapperModel = load_pickle(ALS_MODEL)
 
 if model:
     user_id_map = load_pickle("models/als_ann_dataset_user_id_map.pickle")
@@ -21,7 +22,7 @@ if model:
 
 
 def get_als_recomendations(user_id: int) -> list[int]:
-    if model_ann:
+    if model_ann and user_id in user_id_map.external_ids:
         model_ann.get_item_list_for_user(user_id, top_n=10).tolist()
 
     return POPULAR_RECOMMENDATIONS
