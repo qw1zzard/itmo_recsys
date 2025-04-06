@@ -18,11 +18,11 @@ if not os.getenv("API_KEY"):
 auth_scheme = HTTPBearer()
 
 
-KNN_MODEL_PREDICTIONS_PATH = "models/knn_tfidf_model_predictions.parquet"
+KNN_MODEL_PREDICTIONS_PATH = "models/knn_tfidf_model_with_popular_df.pickle"
 knn_tfidf_model_with_popular_df = None
 
 if os.path.exists(KNN_MODEL_PREDICTIONS_PATH):
-    knn_tfidf_model_with_popular_df = pd.read_parquet(KNN_MODEL_PREDICTIONS_PATH)
+    knn_tfidf_model_with_popular_df = pd.read_pickle(KNN_MODEL_PREDICTIONS_PATH)
     knn_tfidf_model_with_popular_df.set_index("user_id", inplace=True)
 
 
