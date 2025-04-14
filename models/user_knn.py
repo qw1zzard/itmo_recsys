@@ -1,3 +1,4 @@
+import os
 from collections import Counter
 from typing import Union
 
@@ -7,15 +8,17 @@ from implicit.nearest_neighbours import ItemItemRecommender
 from rectools import Columns
 from scipy.sparse import coo_matrix, spmatrix
 
+from models.utils import KNN_RECOMMENDATIONS, POPULAR_RECOMMENDATIONS
+
 
 class UserKnn:
     """
     A user-based KNN model wrapper around `implicit.nearest_neighbours.ItemItemRecommender`
     """
 
-    SIMILAR_USER_COLUMN = 'similar_user_id'
-    SIMILARITY_COLUMN = 'similarity'
-    IDF_COLUMN = 'idf'
+    SIMILAR_USER_COLUMN = "similar_user_id"
+    SIMILARITY_COLUMN = "similarity"
+    IDF_COLUMN = "idf"
 
     def __init__(self, model: ItemItemRecommender, N_similar_users: int):
         self.model = model
@@ -78,13 +81,9 @@ class UserKnn:
          and store the result in self.item_idf.
         """
         item_freqs = Counter(interactions[Columns.Item].values)
-        item_idf_df = pd.DataFrame.from_dict(
-            item_freqs, orient='index', columns=['doc_freq']
-        ).reset_index()
+        item_idf_df = pd.DataFrame.from_dict(item_freqs, orient="index", columns=["doc_freq"]).reset_index()
         total_interactions = len(interactions)
-        item_idf_df[self.IDF_COLUMN] = item_idf_df['doc_freq'].apply(
-            lambda x: self.idf(total_interactions, x)
-        )
+        item_idf_df[self.IDF_COLUMN] = item_idf_df["doc_freq"].apply(lambda x: self.idf(total_interactions, x))
         self.item_idf = item_idf_df
 
     def _prepare_for_model(self, train_interactions: pd.DataFrame) -> None:
@@ -103,17 +102,10 @@ class UserKnn:
         train_interactions (pd.DataFrame): interaction data used to train the model.
         """
 
-        self.popular_items = (
-            train_interactions.groupby('item_id')
-            .size()
-            .sort_values(ascending=False)
-            .index.tolist()
-        )
+        self.popular_items = train_interactions.groupby("item_id").size().sort_values(ascending=False).index.tolist()
         self.cold_model_fitted = True
 
-    def recommend_cold(
-        self, users: Union[list, np.array], k: int = 100
-    ) -> pd.DataFrame:
+    def recommend_cold(self, users: Union[list, np.array], k: int = 100) -> pd.DataFrame:
         """
         Return recommendations for the given cold users.
         Can be called separately or within the class. Supports both list and numpy array as input.
@@ -127,15 +119,11 @@ class UserKnn:
         """
 
         if not self.cold_model_fitted:
-            raise ValueError('Cold model is not fitted yet.')
+            raise ValueError("Cold model is not fitted yet.")
 
         top_items = self.popular_items[:k]
         cold_recs = pd.DataFrame(
-            [
-                (user, item, rank + 1)
-                for user in users
-                for rank, item in enumerate(top_items)
-            ],
+            [(user, item, rank + 1) for user in users for rank, item in enumerate(top_items)],
             columns=[Columns.User, Columns.Item, Columns.Rank],
         )
         return cold_recs
@@ -155,9 +143,7 @@ class UserKnn:
         if not self.cold_model_fitted:
             self.fit_cold_model(train_interactions)
 
-    def _get_similar_users(
-        self, external_user_id: int
-    ) -> tuple[list[int], list[float]]:
+    def _get_similar_users(self, external_user_id: int) -> tuple[list[int], list[float]]:
         """
         Retrieve a list of similar users and corresponding similarities
         from the underlying Implicit model.
@@ -167,9 +153,7 @@ class UserKnn:
             return [-1], [-1]
 
         internal_user_id = self.users_mapping[external_user_id]
-        user_ids, similarities = self.model.similar_items(
-            internal_user_id, N=self.N_similar_users
-        )
+        user_ids, similarities = self.model.similar_items(internal_user_id, N=self.N_similar_users)
         # convert back to external IDs
         external_user_ids = [self.users_inv_mapping[u_id] for u_id in user_ids]
         return external_user_ids, similarities
@@ -183,9 +167,7 @@ class UserKnn:
         recs = recs.sort_values([Columns.User, Columns.Score], ascending=False)
         recs = recs.drop_duplicates([Columns.User, Columns.Item])
         recs[Columns.Rank] = recs.groupby(Columns.User).cumcount() + 1
-        recs = recs[recs[Columns.Rank] <= k][
-            [Columns.User, Columns.Item, Columns.Score, Columns.Rank]
-        ]
+        recs = recs[recs[Columns.Rank] <= k][[Columns.User, Columns.Item, Columns.Score, Columns.Rank]]
 
         return recs
 
@@ -211,12 +193,12 @@ class UserKnn:
             .merge(
                 self.interacted_items_dataframe,
                 on=[self.SIMILAR_USER_COLUMN],
-                how='left',
+                how="left",
             )
             .explode(Columns.Item)
             .sort_values([Columns.User, self.SIMILARITY_COLUMN], ascending=False)
-            .drop_duplicates([Columns.User, Columns.Item], keep='first')
-            .merge(self.item_idf, left_on=Columns.Item, right_on='index', how='left')
+            .drop_duplicates([Columns.User, Columns.Item], keep="first")
+            .merge(self.item_idf, left_on=Columns.Item, right_on="index", how="left")
         )
 
         recs[Columns.Score] = recs[self.SIMILARITY_COLUMN] * recs[self.IDF_COLUMN]
@@ -230,8 +212,13 @@ class UserKnn:
         return recs
 
 
-def get_knn_recomendations(user_id: int, knn_recomendations: pd.DataFrame):
-    if user_id in knn_recomendations.index:
-        return knn_recomendations.loc[user_id, 'item_id']
+if os.path.exists(KNN_RECOMMENDATIONS):
+    knn_recomendations = pd.read_pickle(KNN_RECOMMENDATIONS)
+    knn_recomendations.set_index("user_id", inplace=True)
 
-    return [10440, 15297, 9728, 13865, 4151, 3734, 2657, 4880, 142, 6809]
+
+def get_knn_recomendations(user_id: int) -> list[int]:
+    if knn_recomendations and user_id in knn_recomendations.index:
+        return knn_recomendations.loc[user_id, "item_id"]
+
+    return POPULAR_RECOMMENDATIONS

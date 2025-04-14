@@ -6,6 +6,7 @@ TESTS := tests
 IMAGE_NAME := reco_service
 CONTAINER_NAME := reco_service
 
+
 # Prepare
 
 .venv:
@@ -27,7 +28,6 @@ clean:
 
 isort_fix: .venv
 	poetry run isort $(PROJECT) $(TESTS)
-
 
 black_fix:
 	poetry run black $(PROJECT) $(TESTS)
@@ -70,6 +70,7 @@ build:
 
 run: build
 	docker run -p 8080:8080 --name $(CONTAINER_NAME) $(IMAGE_NAME)
+
 
 # All
 
