@@ -15,6 +15,7 @@ POPULAR_RECOMMENDATIONS: list[int] = [
 
 KNN_RECOMMENDATIONS: str = "models/knn_tfidf_model_with_popular_df.pickle"
 ALS_MODEL: str = "models/als_with_features_model.pickle"
+DSSM_RECOMMENDATIONS: str = 'models/dssm_model_with_popular_df.pickle'
 
 
 def load_pickle(path: str):
