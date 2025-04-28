@@ -7,7 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from starlette import status
 
-from models import get_als_recomendations, get_knn_recomendations
+from models import get_als_recomendations, get_dssm_recomendations, get_knn_recomendations
 from service.api.exceptions import UserNotFoundError
 from service.log import app_logger
 
@@ -76,7 +76,10 @@ async def get_reco(request: Request, model_name: str, user_id: int) -> RecoRespo
 
     k_recs = request.app.state.k_recs
 
-    if model_name == "als_ann_with_features_model":
+    if model_name == "dssm_model_with_popular":
+        reco = get_dssm_recomendations(user_id)
+
+    elif model_name == "als_ann_with_features_model":
         reco = get_als_recomendations(user_id)
 
     elif model_name == "knn_tfidf_model_with_popular":
